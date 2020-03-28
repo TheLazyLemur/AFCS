@@ -9,7 +9,7 @@ namespace DefaultNamespace
     {
         public float spawnRadius = 10;
         public static World Instance;
-        public static List<Transform> humans = new List<Transform>();
+        public static List<Human> humans = new List<Human>();
 
         private void Awake()
         {

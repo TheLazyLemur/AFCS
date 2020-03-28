@@ -17,7 +17,7 @@ public class Spawner : MonoBehaviour
             var newRadY = Random.Range(-spawnRadius, spawnRadius);
             
             var spanwed = Instantiate(human, new Vector3(newRadX, newRadY, 0), Quaternion.identity);
-            World.humans.Add(spanwed.transform);
+            World.humans.Add(spanwed);
         }       
     }
 }

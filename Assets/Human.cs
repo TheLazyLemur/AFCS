@@ -11,7 +11,6 @@ public class Human : MonoBehaviour
     private HumanHealthStatus _healthStatus;
     private SpriteRenderer _body;
 
-    
 
     private float infectionCountDown = 0.5f;
 
@@ -29,14 +28,29 @@ public class Human : MonoBehaviour
     private void Cure()
     {
         _healthStatus.CurrentStatus = HumanHealthStatus.Status.Removed;
+        World.humans.Remove(this);
         _body.color = Color.yellow;
+        foreach (var hu in World.humans)
+        {
+            if (hu == this)
+            {
+                //World.humans.Remove(hu);
+            }
+        }
     }
-    
+
     private void Update()
     {
         infectionCountDown -= Time.deltaTime;
         
+        CureTimer();
 
+        WanderToRandomPoint();
+        AttemptToInfectNeighbors();
+    }
+
+    private void CureTimer()
+    {
         if (_healthStatus.CurrentStatus == HumanHealthStatus.Status.Infected)
         {
             cureTime -= Time.deltaTime;
@@ -45,19 +59,19 @@ public class Human : MonoBehaviour
                 Cure();
             }
         }
-
-        
-        WanderToRandomPoint();
-        CheckNeighborsInRadius();
     }
 
-    private void CheckNeighborsInRadius()
+    private void AttemptToInfectNeighbors()
     {
-        foreach (Transform tr in World.humans)
-        {
-            float distanceSqr = (transform.position - tr.position).sqrMagnitude;
+        if (_healthStatus.CurrentStatus == HumanHealthStatus.Status.Removed) return;
+        if (_healthStatus.CurrentStatus == HumanHealthStatus.Status.Healthy) return;
 
-            if (distanceSqr < 0.4 && tr.gameObject != gameObject)
+        foreach (var humanT in World.humans)
+        {
+            var tr = humanT.transform;
+            var distanceSqr = (transform.position - tr.position).sqrMagnitude;
+
+            if (distanceSqr < 0.05 && tr.gameObject != gameObject)
             {
                 var human = tr.GetComponent<Human>();
 
@@ -66,9 +80,8 @@ public class Human : MonoBehaviour
                     if (infectionCountDown <= 0)
                     {
                         infectionCountDown = 0.5f;
-                        human.AttemptToInfect();    
+                        human.AttemptToInfect();
                     }
-                    
                 }
             }
         }
@@ -98,7 +111,7 @@ public class Human : MonoBehaviour
             return false;
 
         var chance = Random.Range(0, 10);
-            
+
         if (chance <= 1)
         {
             _body.color = Color.red;
